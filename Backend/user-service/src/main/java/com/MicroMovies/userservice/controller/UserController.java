@@ -4,11 +4,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.MicroMovies.userservice.model.AuthRequest;
@@ -73,9 +76,35 @@ public class UserController {
 		return ResponseEntity.ok(strings);
 	}
 	
+	
 	@GetMapping("/users")
 	public ResponseEntity<List<User>> getAllUsers(){
 		return ResponseEntity.ok(this.userRepository.findAll());
+		
+	}
+	
+	@PreAuthorize("isAdmin('true')")
+	@GetMapping("/users2")
+	public ResponseEntity<List<User>> getAllUsers1(@RequestBody AuthRequest authRequest){
+		return ResponseEntity.ok(this.userRepository.findAll());
+		
+	}
+	
+	
+	@GetMapping("/users3")
+	public ResponseEntity<List<User>> getAllUsers2(@RequestParam String id ){
+		User user=userRepository.findById(id).get();
+		
+		if(user.getIsAdmin()) {
+			
+			return ResponseEntity.ok(this.userRepository.findAll());
+		}
+		else {
+			throw new RuntimeException("invalid access");
+		}
+		
+		
+		
 	}
 	
 	@PostMapping("/users")

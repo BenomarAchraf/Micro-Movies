@@ -10,6 +10,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -37,6 +41,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 
 @RestController
+@Component
 public class UserController {
 	
 	private final UserRepository userRepository;
@@ -44,7 +49,8 @@ public class UserController {
 	
 	@Autowired
 	private JwtService jwtService;
-	
+	@Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	
@@ -155,6 +161,18 @@ public class UserController {
 		}
 		
 		return ResponseEntity.status(200).body("Token is valid");
+	}
+	@GetMapping("/users/{id}")
+	public Optional<User> getUserById(@PathVariable("id") String userID){
+	return userRepository.findById(userID);
+
+
+	}
+	
+	@PostMapping("/abonnement")
+	public ResponseEntity<String> PAYEMENT(@RequestBody User user,String data){
+		kafkaTemplate.send("payement1",User.toSt(user));
+		return ResponseEntity.status(200).body("operation en cours du traitemant");
 	}
 
 

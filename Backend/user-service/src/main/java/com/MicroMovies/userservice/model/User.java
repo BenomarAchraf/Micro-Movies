@@ -35,6 +35,11 @@ public class User {
                 .map(role -> new SimpleGrantedAuthority(role))
                 .collect(Collectors.toList());
     }
+    
+    
+    public static String toSt(User user) {
+    	return user.getUsername()+"/"+user.getPassword()+"/"+user.getEmail()+"/"+user.getPreferences().get(0)+"/"+user.getRoles();
+    }
 	
 
 }

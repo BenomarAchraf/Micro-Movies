@@ -29,6 +29,11 @@ public class GatewayApplication {
 		
 	}
 	
+	@Bean
+	DiscoveryClientRouteDefinitionLocator dynamicRoures(ReactiveDiscoveryClient rdc, DiscoveryLocatorProperties dlp) {
+		return new DiscoveryClientRouteDefinitionLocator(rdc, dlp);
+	}
+	
 	
 	 /*
 	
